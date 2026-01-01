@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adrianwang 購物系統</title>
+    <style>
+        :root { --shopee-orange: #ee4d2d; --bg-color: #f5f5f5; }
+        body { font-family: 'Segoe UI', "Microsoft JhengHei", sans-serif; background-color: var(--bg-color); margin: 0; padding: 0; }
+        
+        /* 頁首樣式 */
+        header { background: var(--shopee-orange); color: white; padding: 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        
+        /* 主要佈局 */
+        .container { display: flex; gap: 20px; max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        
+        /* 左側商品區 */
+        .product-section { flex: 3; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+        
+        .product-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.3s; display: flex; flex-direction: column; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+        
+        /* 圖片顯示 */
+        .product-img { width: 100%; height: 180px; object-fit: cover; background: #eee; }
+        .no-img { width: 100%; height: 180px; display: flex; align-items: center; justify-content: center; color: #aaa; background: #fafafa; }
+        
+        .product-info { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .product-name { font-size: 1.1em; font-weight: bold; margin: 0; color: #333; }
+        .product-price { color: var(--shopee-orange); font-size: 1.3em; font-weight: bold; margin: 10px 0; }
+        .product-stock { font-size: 0.85em; color: #888; margin-bottom: 15px; }
+        
+        /* 右側購物車 */
+        .cart-section { flex: 1; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); height: fit-content; position: sticky; top: 20px; }
+        .cart-title { border-bottom: 2px solid var(--shopee-orange); padding-bottom: 10px; margin-top: 0; }
+        
+        /* 按鈕樣式 */
+        .btn { display: block; text-align: center; padding: 10px; border-radius: 5px; text-decoration: none; font-weight: bold; cursor: pointer; border: none; transition: 0.2s; }
+        .btn-add { background: var(--shopee-orange); color: white; }
+        .btn-add:hover { background: #d73211; }
+        .btn-clear { background: #f0f0f0; color: #666; margin-top: 15px; font-size: 0.9em; }
+        .btn-clear:hover { background: #e0e0e0; }
+        
+        /* 表格樣式 */
+        table { width: 100%; margin-top: 15px; border-collapse: collapse; }
+        td { padding: 10px 0; border-bottom: 1px solid #eee; font-size: 0.9em; }
+        .total-price { font-size: 1.5em; color: var(--shopee-orange); text-align: right; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Welcome to Shop</h1>
+</header>
+
+<div class="container">
+    <div class="product-section">
+        <div class="product-grid">
+            {% for p in items %}
+            <div class="product-card">
+                {% if p.image %}
+                    <img src="{{ p.image.url }}" alt="{{ p.name }}" class="product-img">
+                {% else %}
+                    <div class="no-img">暫無圖片</div>
+                {% endif %}
+                
+                <div class="product-info">
+                    <div>
+                        <p class="product-name">{{ p.name }}</p>
+                        <p class="product-price">NT$ {{ p.price }}</p>
+                        <p class="product-stock">庫存剩餘：{{ p.stock }} 件</p>
+                    </div>
+                    <a href="{% url 'add_to_cart' p.id %}" class="btn btn-add">加入購物車</a>
+                </div>
+            </div>
+            {% empty %}
+            <div style="grid-column: 1/-1; text-align: center; padding: 50px; background: white; border-radius: 10px;">
+                <h3>目前店內沒有商品</h3>
+                <p>請點擊下方連結前往後台新增</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="cart-section">
+        <h2 class="cart-title">🛒 我的購物籃</h2>
+        {% if cart_items %}
+            <table>
+                {% for item in cart_items %}
+                <tr>
+                    <td><strong>{{ item.product.name }}</strong><br><small>NT$ {{ item.product.price }} x {{ item.quantity }}</small></td>
+                    <td style="text-align: right;">${{ item.subtotal }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            <div class="total-price">總計: ${{ total_price }}</div>
+            <a href="{% url 'clear_cart' %}" class="btn btn-clear">清空購物車</a>
+        {% else %}
+            <p style="text-align: center; color: #999; padding: 20px 0;">購物車內尚無商品</p>
+        {% endif %}
+        <hr style="margin-top: 30px; border: 0; border-top: 1px solid #eee;">
+        <a href="/admin" style="display: block; text-align: center; color: #007bff; text-decoration: none; font-size: 0.8em;">進入管理後台</a>
+    </div>
+</div>
+
+</body>
+</html>
